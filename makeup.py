@@ -8,7 +8,7 @@ import argparse
 
 def parse_args():
     parse = argparse.ArgumentParser()
-    parse.add_argument('--img-path', default='imgs/116.jpg')
+    parse.add_argument('--img-path', default='imgs/6.jpg')
     return parse.parse_args()
 
 
@@ -40,16 +40,16 @@ def hair(image, parsing, part=17, color=[230, 50, 20]):
 
     image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     tar_hsv = cv2.cvtColor(tar_color, cv2.COLOR_BGR2HSV)
+    # print( tar_hsv[:, :, 0:2].shape)
+    # if part == 12 or part == 13:
+    #     image_hsv[:, :, 0:2] = tar_hsv[:, :, 0:2]
+    # else:
+    #     image_hsv[:, :, 0:1] = tar_hsv[:, :, 0:1]
+    
+    changed = cv2.cvtColor(tar_hsv, cv2.COLOR_HSV2BGR)
 
-    if part == 12 or part == 13:
-        image_hsv[:, :, 0:2] = tar_hsv[:, :, 0:2]
-    else:
-        image_hsv[:, :, 0:1] = tar_hsv[:, :, 0:1]
-
-    changed = cv2.cvtColor(image_hsv, cv2.COLOR_HSV2BGR)
-
-    if part == 17:
-        changed = sharpen(changed)
+    # if part == 17:
+    #     changed = sharpen(changed)
 
     changed[parsing != part] = image[parsing != part]
     return changed
@@ -65,25 +65,36 @@ if __name__ == '__main__':
     args = parse_args()
 
     table = {
+        'face': 1,
+        'eyebrows_l': 2,
+        'eyebrows_r': 3,
+        'eyes_l':4,
+        'eyes_r':5,
+        'ears': 8,
+        'nose':10,
+        'teeth': 11,
         'hair': 17,
         'upper_lip': 12,
         'lower_lip': 13
     }
 
     image_path = args.img_path
+    print(image_path)
     cp = 'cp/79999_iter.pth'
 
     image = cv2.imread(image_path)
     ori = image.copy()
     parsing = evaluate(image_path, cp)
     parsing = cv2.resize(parsing, image.shape[0:2], interpolation=cv2.INTER_NEAREST)
+    print(image.shape[0:2])
+    parts = [table['face'],table['eyes_l'],table['eyes_r'],table['ears'],table['eyebrows_l'],table['eyebrows_r'],table['nose'],table['teeth'],table['hair'], table['upper_lip'], table['lower_lip']]
 
-    parts = [table['hair'], table['upper_lip'], table['lower_lip']]
-
-    colors = [[230, 50, 20], [20, 70, 180], [20, 70, 180]]
+    colors = [[0, 0, 255],[255,255,255], [255,255,255], [0,255,255] ,[255,0,255], [255,0,255], [255,255,0], [0, 255, 0],[255,0,0],[20, 70, 180], [20, 70, 180]]
 
     for part, color in zip(parts, colors):
         image = hair(image, parsing, part, color)
+    
+
 
     cv2.imshow('image', cv2.resize(ori, (512, 512)))
     cv2.imshow('color', cv2.resize(image, (512, 512)))
