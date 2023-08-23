@@ -68,7 +68,6 @@ def dilate_image(image,kernel_size=(5,5),iterate=1):
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     kernel = np.ones(kernel_size,np.uint8)
     dilation = cv2.dilate(image_gray,kernel,iterations=iterate)
-    dilation = cv2.dilate(dilation,kernel,iterations=iterate)
     return dilation
     
 
@@ -83,8 +82,8 @@ if __name__ == '__main__':
 
     table = {
         # 'face': 1,
-        # 'eyebrows_l': 2,
-        # 'eyebrows_r': 3,
+        'eyebrows_l': 2,
+        'eyebrows_r': 3,
         'eyes_l':4,
         'eyes_r':5
         # 'ears': 8,
@@ -102,10 +101,10 @@ if __name__ == '__main__':
     ori = image.copy()
     parsing = evaluate(image_path, cp)
     parsing = cv2.resize(parsing, image.shape[0:2], interpolation=cv2.INTER_NEAREST)
-    parts = [table['eyes_l'],table['eyes_r']]
-    colors = [[255,255,255],[255,255,255]]
+    parts = [table['eyebrows_l'],table['eyebrows_r'],table['eyes_l'],table['eyes_r']]
+    colors = [[255,255,255],[255,255,255],[255,255,255],[255,255,255]]
     grayscale_image = change_color_gray(ori,parsing,parts)   
-    dilation_image = dilate_image(grayscale_image,kernel_size=(5,5),iterate=5)
+    dilation_image = dilate_image(grayscale_image,iterate=5)
     
     image_segmented_remove = change_color(ori,dilation_image,255)
     image_eyes = change_color_inverse(ori, dilation_image,255)
