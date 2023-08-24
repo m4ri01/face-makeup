@@ -65,10 +65,13 @@ def change_color_gray(image,parsing,parts):
     return tar_color2
 
 def dilate_image(image,kernel_size=(5,5),iterate=1):
-    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    dilation = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     kernel = np.ones(kernel_size,np.uint8)
-    dilation = cv2.dilate(image_gray,kernel,iterations=iterate)
     dilation = cv2.dilate(dilation,kernel,iterations=iterate)
+    # for i in range(20):
+    #     dilation = cv2.dilate(dilation,kernel,iterations=iterate)
+    # # dilation = cv2.dilate(image_gray,kernel,iterations=iterate)
+    # # dilation = cv2.dilate(dilation,kernel,iterations=iterate)
     return dilation
     
 
@@ -105,7 +108,7 @@ if __name__ == '__main__':
     parts = [table['eyes_l'],table['eyes_r']]
     colors = [[255,255,255],[255,255,255]]
     grayscale_image = change_color_gray(ori,parsing,parts)   
-    dilation_image = dilate_image(grayscale_image,kernel_size=(5,5),iterate=5)
+    dilation_image = dilate_image(grayscale_image,kernel_size=(2,2),iterate=1)
     
     image_segmented_remove = change_color(ori,dilation_image,255)
     image_eyes = change_color_inverse(ori, dilation_image,255)
